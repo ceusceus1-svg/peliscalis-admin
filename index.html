@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PelisCalis - Panel de Administración</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>🎬 PelisCalis</h1>
+                <h2>Panel de Administración</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Usuario:</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                </form>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal -->
+    <div id="mainScreen" class="screen">
+        <header>
+            <h1>🎬 PelisCalis - Panel de Administración</h1>
+            <button id="logoutBtn" class="btn-secondary">Cerrar Sesión</button>
+        </header>
+
+        <main>
+            <!-- Barra de herramientas -->
+            <div class="toolbar">
+                <button id="addCategoryBtn" class="btn-primary">➕ Nueva Categoría</button>
+                <button id="syncGitHubBtn" class="btn-success">☁️ Subir a GitHub</button>
+                <button id="githubConfigBtn" class="btn-secondary">⚙️ Config GitHub</button>
+                <button id="downloadJsonBtn" class="btn-secondary">💾 Descargar JSON</button>
+                <button id="loadJsonBtn" class="btn-secondary">📁 Cargar JSON</button>
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+            </div>
+            <div id="syncStatus" style="display: none; padding: 10px; margin-bottom: 20px; border-radius: 8px;"></div>
+
+            <!-- Lista de categorías -->
+            <div id="categoriesContainer"></div>
+        </main>
+    </div>
+
+    <!-- Modal para Categoría -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalCategoryTitle">Nueva Categoría</h2>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryId">ID (único):</label>
+                    <input type="text" id="categoryId" required pattern="[a-z0-9_]+" placeholder="ej: accion, comedia">
+                    <small>Solo letras minúsculas, números y guiones bajos</small>
+                </div>
+                <div class="form-group">
+                    <label for="categoryName">Nombre:</label>
+                    <input type="text" id="categoryName" required placeholder="ej: Acción">
+                </div>
+                <div class="form-group">
+                    <label for="categoryColor">Color (Hex):</label>
+                    <div class="color-input-group">
+                        <input type="color" id="colorPicker" value="#E50914">
+                        <input type="text" id="categoryColor" required pattern="#[0-9A-Fa-f]{6}" value="#E50914" placeholder="#E50914">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-secondary" onclick="closeCategoryModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Película -->
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalMovieTitle">Nueva Película</h2>
+            <form id="movieForm">
+                <input type="hidden" id="movieCategoryId">
+                <div class="form-group">
+                    <label for="movieId">ID (único):</label>
+                    <input type="text" id="movieId" required pattern="[a-z0-9_]+" placeholder="ej: accion1, comedia2">
+                </div>
+                <div class="form-group">
+                    <label for="movieTitle">Título:</label>
+                    <input type="text" id="movieTitle" required placeholder="ej: Matrix">
+                </div>
+                <div class="form-group">
+                    <label for="movieSubtitle">Subtítulo:</label>
+                    <input type="text" id="movieSubtitle" required placeholder="ej: 1999 • Ciencia Ficción">
+                </div>
+                <div class="form-group">
+                    <label for="movieImageUrl">URL de Imagen:</label>
+                    <input type="url" id="movieImageUrl" required placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="movieLink">Enlace de Reproducción:</label>
+                    <input type="url" id="movieLink" required placeholder="https://youtube.com/watch?v=...">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-secondary" onclick="closeMovieModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración GitHub -->
+    <div id="githubConfigModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>⚙️ Configuración de GitHub</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">Configura tu repositorio de GitHub para sincronización automática</p>
+            <form id="githubConfigForm">
+                <div class="form-group">
+                    <label for="githubUsername">Usuario de GitHub:</label>
+                    <input type="text" id="githubUsername" required placeholder="tu-usuario">
+                </div>
+                <div class="form-group">
+                    <label for="githubRepo">Nombre del Repositorio:</label>
+                    <input type="text" id="githubRepo" required placeholder="peliscalis-content">
+                    <small>Si no existe, créalo primero en GitHub</small>
+                </div>
+                <div class="form-group">
+                    <label for="githubToken">Token de Acceso (Personal Access Token):</label>
+                    <input type="password" id="githubToken" required placeholder="ghp_xxxxxxxxxxxx">
+                    <small><a href="https://github.com/settings/tokens/new" target="_blank">Crear token aquí</a> (marca el permiso "repo")</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Guardar Configuración</button>
+                    <button type="button" class="btn-secondary" onclick="closeGitHubConfigModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="github-sync.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
